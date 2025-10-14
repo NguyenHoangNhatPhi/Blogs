@@ -10,6 +10,10 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
     <link
       rel="shortcut icon"
       type="image/png"
@@ -204,18 +208,41 @@
         <ul class="flex items-center navitems">
           <li><a href="#">Home</a></li>
           <li><a href="#">Create Post</a></li>
-          <li>
-            <a href="#">
+          <li x-data="{dropdownOpen: false}" class="relative">
+            <a
+              x-on:click="dropdownOpen = !dropdownOpen"
+              x-on:click.outside="dropdownOpen = false"
+              class="cursor-pointer select-none"
+              href="#"
+            >
               <img
                 class="h-8 bg-teal-200 rounded-full object-cover"
                 src="https://img.icons8.com/doodle/96/null/bart-simpson.png"
               />
               Bart
               <img
+                x-bind:class="dropdownOpen ? 'rotate-180 duration-300' : 'rotate-0 duration-300'"
                 class="w-4"
                 src="https://img.icons8.com/small/32/777777/expand-arrow.png"
               />
             </a>
+            <!-- Dropdown -->
+            <div
+              x-show="dropdownOpen"
+              x-transition:enter="transition ease-out duration-100"
+              x-transition:enter-start="transform opacity-0 scale-50"
+              x-transition:enter-end="transform opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-100"
+              x-transition:leave-start="transfrom opacity-100 scale-90"
+              x-transition:leave-end="transform opacity-0 scale-50"
+              x-cloak
+              class="absolute right-0 bg-white text-black shadow rounded-lg w-40 p-2 z-20"
+            >
+              <ul class="hoverlist [&>li>a]:justify-end">
+                <li><a href="#">My Profile</a></li>
+                <li><a href="#">Logout</a></li>
+              </ul>
+            </div>
           </li>
         </ul>
       </nav>

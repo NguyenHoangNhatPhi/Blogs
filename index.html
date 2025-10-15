@@ -195,7 +195,7 @@
       x-data="{mobileNavOpen: false}"
       class="md:flex items-center justify-between [&>*]:px-8 bg-gray-800 h-20 text-white sticky top-0 z-50"
     >
-      <div class="flex items-center justify-between h-20 ">
+      <div class="flex items-center justify-between h-20">
         <logo>
           <a href="#" class="flex items-center gap-1">
             <img
@@ -225,12 +225,17 @@
           </a>
         </mobileicon>
       </div>
-      <nav x-show="mobileNavOpen" x-cloak class="md:!block bg-gray-800 h-screen w-screen md:h-auto md:w-auto -mt-20 absolute md:relative z-[-1]"
-      x-transition:enter="transition ease-out duration-300"
-      x-transition:enter-start="opacity-0 -translate-y-95"
-      x-transition:enter-end="opacity-100 translate-y-0"
+      <nav
+        x-show="mobileNavOpen"
+        x-cloak
+        class="md:!block bg-gray-800 h-screen w-screen md:h-auto md:w-auto -mt-20 absolute md:relative z-[-1]"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 -translate-y-95"
+        x-transition:enter-end="opacity-100 translate-y-0"
       >
-        <ul class="flex items-center navitems flex-col md:flex-row gap-9 md:gap-0 justify-center h-full -translate-y-10 md:translate-y-0">
+        <ul
+          class="flex items-center navitems flex-col md:flex-row gap-9 md:gap-0 justify-center h-full -translate-y-10 md:translate-y-0"
+        >
           <li><a href="#">Home</a></li>
           <li><a href="#">Create Post</a></li>
           <li x-data="{dropdownOpen: false}" class="relative">
@@ -286,8 +291,26 @@
       </div>
     </hero>
 
-    <container class="grid grid-cols-3 max-w-7xl mx-auto mt-6">
-      <main class="col-span-2 mx-[10%]">
+    <container
+      x-data="{mobileSidebarOpen: false}"
+      class="grid grid-cols-3 max-w-7xl mx-auto mt-6"
+    >
+      <mobileSidebarNav class="md:hidden col-span-full mx-auto mb-6">
+        <a
+          x-on:click="mobileSidebarOpen = !mobileSidebarOpen"
+          class="flex items-center cursor-pointer select-none font-bold hover:bg-gray-200 rounded-lg p-3"
+        >
+          <span>Categories</span>
+          <img
+            x-bind:class="mobileSidebarOpen ? 'rotate-180 duration-300' : 'rotate-0 duration-300'"
+            class="w-4 ml-1.5"
+            src="https://img.icons8.com/small/32/000000/expand-arrow.png"
+          />
+        </a>
+      </mobileSidebarNav>
+      <main
+        class="col-span-full md:col-span-2 mx-[5%] md:x-[10%] order-2 md:order-1"
+      >
         <article class="card">
           <div class="flex items-center justify-between px-4 h-14">
             <h3 class="text-lg font-bold w-[50%] truncate">Litte Jedi</h3>
@@ -347,7 +370,17 @@
           </div>
         </article>
       </main>
-      <aside class="col-span-1 mr-[20%]">
+      <aside
+        x-show="mobileSidebarOpen"
+        x-cloak
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 -translate-y-30"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="transfrom opacity-100 scale-90"
+        x-transition:leave-end="transform opacity-0 scale-50"
+        class="md:!block col-span-full md:col-span-1 mx-[5%] md:mr-[20%] order-1 md:order-2"
+      >
         <section class="card p-4">
           <h2>Categories</h2>
           <ul class="hoverlist">

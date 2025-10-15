@@ -192,20 +192,45 @@
   </head>
   <body class="bg-gray-100">
     <header
-      class="flex items-center justify-between px-8 bg-gray-800 h-20 text-white sticky top-0 z-50"
+      x-data="{mobileNavOpen: false}"
+      class="md:flex items-center justify-between [&>*]:px-8 bg-gray-800 h-20 text-white sticky top-0 z-50"
     >
-      <logo>
-        <a href="#" class="flex items-center gap-1">
-          <img
-            src="https://img.icons8.com/small/64/ffffff/fire-heart.png"
-            class="h-8 -mt-1"
-            alt="fire-heart"
-          />
-          <span>Awesome</span>
-        </a>
-      </logo>
-      <nav>
-        <ul class="flex items-center navitems">
+      <div class="flex items-center justify-between h-20 ">
+        <logo>
+          <a href="#" class="flex items-center gap-1">
+            <img
+              src="https://img.icons8.com/small/64/ffffff/fire-heart.png"
+              class="h-8 -mt-1"
+              alt="fire-heart"
+            />
+            <span>Awesome</span>
+          </a>
+        </logo>
+        <mobileicon class="md:hidden">
+          <a
+            x-on:click="mobileNavOpen = !mobileNavOpen"
+            class="h-12 w-12 flex items-center justify-center cursor-pointer hover:bg-gray-700 rounded-lg"
+          >
+            <img
+              x-show="!mobileNavOpen"
+              class="w-6 h-6 select-none"
+              src="https://img.icons8.com/small/64/ffffff/menu.png"
+            />
+            <img
+              x-cloak
+              x-show="mobileNavOpen"
+              class="w-6 h-6 select-none"
+              src="https://img.icons8.com/small/64/ffffff/delete-sign.png"
+            />
+          </a>
+        </mobileicon>
+      </div>
+      <nav x-show="mobileNavOpen" x-cloak class="md:!block bg-gray-800 h-screen w-screen md:h-auto md:w-auto -mt-20 absolute md:relative z-[-1]"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0 -translate-y-95"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      >
+        <ul class="flex items-center navitems flex-col md:flex-row gap-9 md:gap-0 justify-center h-full -translate-y-10 md:translate-y-0">
           <li><a href="#">Home</a></li>
           <li><a href="#">Create Post</a></li>
           <li x-data="{dropdownOpen: false}" class="relative">
@@ -253,7 +278,7 @@
     >
       <div class="col-start-1 row-start-1 bg-gray-800/40 w-full h-full"></div>
       <div class="col-start-1 row-start-1 py-24 px-10">
-        <h1>Awesome Photos & Captions</h1>
+        <h1 class="titleBlip">Awesome Photos & Captions</h1>
         <p class="text-large font-bold mb-5">
           Share your favorite Photos from Flicker and add great captions
         </p>

@@ -61,6 +61,71 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# Django static files
+/static/
+/staticfiles/
+/static_root/
+/static_cdn/
+
+# Django media files
+/media/
+/mediafiles/
+
+# Django migrations (uncomment if you want to ignore them)
+# */migrations/*.py
+# */migrations/*.pyc
+# !*/migrations/__init__.py
+
+# Django secret key
+.secret
+secret.txt
+secrets.json
+
+# Django cache
+.django_cache/
+
+# Django sessions
+django_session/
+
+# Django fixture dumps
+*.json.gz
+fixtures/*.json
+
+# Django compressor
+CACHE/
+
+# Django debug toolbar
+.debug_toolbar/
+
+# Django webpack stats
+webpack-stats.json
+webpack-stats-prod.json
+
+# Django REST framework
+.drf_cache/
+
+# Celery beat schedule (already in Celery section but mentioned here for Django context)
+# celerybeat-schedule
+# celerybeat.pid
+
+# Django channels
+redis-data/
+asgi.py.bak
+
+# Django shell history
+.django_shell_history
+
+# Django translation files (compiled)
+# *.mo (already in Translations section)
+
+# Django test coverage
+.coverage
+htmlcov/
+
+# Django environment variables
+.env.local
+.env.*.local
+
 # Flask stuff:
 instance/
 .webassets-cache

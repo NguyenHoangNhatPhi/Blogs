@@ -62,7 +62,7 @@ def post_delete_view(request, id):
     return render(request, "a_posts/post_delete.html", {"post": post})
 
 def post_edit_view(request, id):
-    post = Post.objects.get(id=id)
+    post = get_object_or_404(id=id)
     form  = PostEditFrom(instance=post)
     if request.method == "POST":
         form = PostEditFrom(request.POST, instance=post)
@@ -77,3 +77,7 @@ def post_edit_view(request, id):
    
     return render(request, "a_posts/post_edit.html", context)
     
+    
+def post_page_view(request, id):
+    post = get_object_or_404(Post,id=id)
+    return render(request, 'a_posts/post_page.html', {'post': post})

@@ -4,7 +4,7 @@ import requests
 from django.contrib import messages
 
 from .models import Post
-from .forms import PostCreateForm
+from .forms import PostCreateForm, PostEditFrom
 
 
 def home_view(request):
@@ -60,3 +60,20 @@ def post_delete_view(request, id):
         return redirect('home')
     
     return render(request, "a_posts/post_delete.html", {"post": post})
+
+def post_edit_view(request, id):
+    post = Post.objects.get(id=id)
+    form  = PostEditFrom(instance=post)
+    if request.method == "POST":
+        form = PostEditFrom(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Post updated")
+            return redirect('home')
+    context = {
+        "post": post,
+        "form": form
+    }
+   
+    return render(request, "a_posts/post_edit.html", context)
+    

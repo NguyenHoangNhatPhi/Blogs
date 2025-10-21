@@ -8,7 +8,8 @@ from .forms import PostCreateForm, PostEditFrom
 
 
 def home_view(request):
-    posts = Post.objects.all()
+    # Optimize query to prefetch related tags to avoid N+1 queries
+    posts = Post.objects.prefetch_related('tags').all()
     return render(request, "a_posts/home.html", {"posts": posts})
 
 
@@ -52,7 +53,8 @@ def post_create_view(request):
 
 
 def post_delete_view(request, id):
-    post = get_object_or_404(Post, id=id)
+    # Optimize query to prefetch related tags
+    post = get_object_or_404(Post.objects.prefetch_related('tags'), id=id)
     
     if request.method == "POST":
         post.delete()
@@ -62,7 +64,8 @@ def post_delete_view(request, id):
     return render(request, "a_posts/post_delete.html", {"post": post})
 
 def post_edit_view(request, id):
-    post = get_object_or_404(Post,id=id)
+    # Optimize query to prefetch related tags
+    post = get_object_or_404(Post.objects.prefetch_related('tags'), id=id)
     form  = PostEditFrom(instance=post)
     if request.method == "POST":
         form = PostEditFrom(request.POST, instance=post)
@@ -79,5 +82,6 @@ def post_edit_view(request, id):
     
     
 def post_page_view(request, id):
-    post = get_object_or_404(Post,id=id)
+    # Optimize query to prefetch related tags
+    post = get_object_or_404(Post.objects.prefetch_related('tags'), id=id)
     return render(request, 'a_posts/post_page.html', {'post': post})

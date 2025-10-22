@@ -5,6 +5,8 @@
             Awesome Photos & Captions
         </h1>
         <p class="text-lg font-bold mb-5">Share your favorite Photos from Flickr and add a great caption</p>
-        <a class="button" href="">Get Started</a>
+        {% if not user.is_authenticated %}
+            <a class="button" href="{% url 'account_signup' %}">Get Started</a>
+        {% endif %}
     </div>
 </hero>

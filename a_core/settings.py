@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # my apps
     "a_posts",
+    "a_users",
     # debug toolbar
     "debug_toolbar",
 ]

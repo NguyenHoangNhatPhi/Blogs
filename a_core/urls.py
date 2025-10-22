@@ -17,12 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
-from a_posts import urls as a_posts_urls
 from django.conf.urls.static import static
+
+from a_posts import urls as a_posts_urls
+from a_users import urls as a_users_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(a_posts_urls)),
+    path('profiles/', include(a_users_urls)),
     path('accounts/', include('allauth.urls')),
 ]
 

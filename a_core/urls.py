@@ -25,7 +25,7 @@ from a_users import urls as a_users_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(a_posts_urls)),
-    path('profiles/', include(a_users_urls)),
+    path('profile/', include(a_users_urls)),
     path('accounts/', include('allauth.urls')),
 ]
 

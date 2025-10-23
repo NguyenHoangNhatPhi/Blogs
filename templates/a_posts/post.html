@@ -18,21 +18,27 @@
   </figure>
   <div class="p-4 pb-2">
     {% if post.author %}
-        <a class="flex items-center gap-1 mb-4" href="{% url 'user-profile' post.author.username %}">
-        <img
-            class="w-8 h-8 object-cover rounded-full"
-            src="{{ post.author.profile.avatar }}"
-        />
-        <span class="font-bold hover:underline"
-            >{{post.author.profile.name}}</span
-        >
-        <span class="text-sm text-gray-400">@{{post.author.username}}</span>
-        </a> 
+    <a
+      class="flex items-center gap-1 mb-4"
+      href="{% url 'user-profile' post.author.username %}"
+    >
+      <img
+        class="w-8 h-8 object-cover rounded-full"
+        src="{{ post.author.profile.avatar }}"
+      />
+      <span class="font-bold hover:underline"
+        >{{post.author.profile.name}}</span
+      >
+      <span class="text-sm text-gray-400">@{{post.author.username}}</span>
+    </a>
     {% else %}
-        <div class="flex items-center gap-1 mb-4">
-            <img class="w-8 h-8 object-cover rouded-full" src="{% static 'images/avatar_default.svg' %}" />
-            <span class="text-gray-500">no author</span>
-        </div>
+    <div class="flex items-center gap-1 mb-4">
+      <img
+        class="w-8 h-8 object-cover rouded-full"
+        src="{% static 'images/avatar_default.svg' %}"
+      />
+      <span class="text-gray-500">no author</span>
+    </div>
     {% endif%}
 
     <p class="text-5xl mb-10 px-4 font1">{{ post.body }}</p>
@@ -59,8 +65,10 @@
           1
         </div>
         <a href="">Like</a>
-        <a href="{% url 'post-edit' post.id %}">Edit</a>
-        <a href="{% url 'post-delete' post.id %}">Delete</a>
+        {% if user.is_authenticated and post.author == user %}
+          <a href="{% url 'post-edit' post.id %}">Edit</a>
+          <a href="{% url 'post-delete' post.id %}">Delete</a>
+        {% endif %}
       </div>
     </div>
   </div>

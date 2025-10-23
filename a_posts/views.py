@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from bs4 import BeautifulSoup
 import requests
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from .models import Post, Tag
 from .forms import PostCreateForm, PostEditFrom
@@ -19,7 +20,7 @@ def home_view(request, slug=None):
     context = {"posts": posts, "categories": categories, "tag": tag}
     return render(request, "a_posts/home.html", context)
 
-
+@login_required
 def post_create_view(request):
     form = PostCreateForm()
     if request.method == "POST":
@@ -59,9 +60,12 @@ def post_create_view(request):
     return render(request, "a_posts/post_create.html", {"form": form})
 
 
+@login_required
 def post_delete_view(request, id):
     # Optimize query to prefetch related tags
-    post = get_object_or_404(Post.objects.prefetch_related("tags"), id=id)
+    post = get_object_or_404(
+        Post.objects.prefetch_related("tags"), id=id, author=request.user
+    )
 
     if request.method == "POST":
         post.delete()
@@ -70,10 +74,12 @@ def post_delete_view(request, id):
 
     return render(request, "a_posts/post_delete.html", {"post": post})
 
-
+@login_required
 def post_edit_view(request, id):
     # Optimize query to prefetch related tags
-    post = get_object_or_404(Post.objects.prefetch_related("tags"), id=id)
+    post = get_object_or_404(
+        Post.objects.prefetch_related("tags"), id=id, author=request.user
+    )
     form = PostEditFrom(instance=post)
     if request.method == "POST":
         form = PostEditFrom(request.POST, instance=post)

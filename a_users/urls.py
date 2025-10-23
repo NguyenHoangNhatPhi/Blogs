@@ -4,6 +4,7 @@ from .views import profile_view, edit_profile_view
 
 urlpatterns = [
     path("",profile_view, name="profile"),
+    path("<str:username>/",profile_view, name="user-profile"),
     path("edit/",edit_profile_view, name="profile-edit"),
     
 ]

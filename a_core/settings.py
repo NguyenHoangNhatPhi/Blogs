@@ -153,7 +153,7 @@ INTERNAL_IPS = [
 ]
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-SIGNUP_REDIRECT_URL = "/"
+SIGNUP_REDIRECT_URL = "profile-onboarding"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ACCOUNT_AUTHENTICATION_METHOD = "email"

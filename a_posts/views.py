@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from .models import Post, Tag
-from .forms import PostCreateForm, PostEditFrom
+from .forms import PostCreateForm, PostEditFrom, CommentCreateForm
 
 
 def home_view(request, slug=None):
@@ -95,4 +95,8 @@ def post_edit_view(request, id):
 def post_page_view(request, id):
     # Optimize query to prefetch related tags
     post = get_object_or_404(Post.objects.prefetch_related("tags"), id=id)
-    return render(request, "a_posts/post_page.html", {"post": post})
+    commentform = CommentCreateForm()
+    context = {"post": post, "commentform": commentform}
+    
+    return render(request, "a_posts/post_page.html", context)
+

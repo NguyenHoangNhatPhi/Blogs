@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 
-from .models import Post
+from .models import Post, Comment
 
 class PostCreateForm(ModelForm):
     class Meta:
@@ -28,4 +28,15 @@ class PostEditFrom(ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'rows': 3, 'class': 'font1 text-4xl'}),
             'tags': forms.CheckboxSelectMultiple(),
+        }
+        
+class CommentCreateForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['body']
+        labels = {
+            'body': ''
+        }
+        widgets = {
+            'body': forms.TextInput(attrs={'placeholder': 'Add a comment...', 'class': 'w-full'}),
         }

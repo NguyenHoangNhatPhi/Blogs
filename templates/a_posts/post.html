@@ -64,13 +64,26 @@
       </a>
       <div class="flex items-center gap-4 [&>a:hover]:underline">
         <div class="flex items-center gap-1">
-          <img
-            class="w-5 -mt-1"
-            src="https://img.icons8.com/small/24/000000/fire-heart.png"
+          {% if user in post.likes.all %}
+            <img
+              class="w-4 -mt-1"
+              src="{% static 'images/fireheart_red.svg' %}"
+            />
+          {% else %}
+            <img
+            class="w-4 -mt-1"
+            src="{% static 'images/fireheart.svg' %}"
           />
-          1
+          {% endif %}
+          {{post.likes.count}}
         </div>
-        <a href="">Like</a>
+        {% if user.is_authenticated and user != post.author%}
+          {% if user in post.likes.all %}
+            <a class="font-bold" href="{% url 'like-post' post.id %}">Liked</a>
+          {% else %}
+            <a href="{% url 'like-post' post.id %}">Like</a>
+          {% endif %}
+        {% endif %}
         {% if user.is_authenticated and post.author == user %}
           <a href="{% url 'post-edit' post.id %}">Edit</a>
           <a href="{% url 'post-delete' post.id %}">Delete</a>

@@ -4,8 +4,8 @@ import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .models import Post, Tag
-from .forms import PostCreateForm, PostEditFrom, CommentCreateForm
+from .models import Post, Tag, Comment, Reply
+from .forms import PostCreateForm, PostEditFrom, CommentCreateForm, RepyCreateForm
 
 
 def home_view(request, slug=None):
@@ -19,6 +19,7 @@ def home_view(request, slug=None):
     categories = Tag.objects.all()
     context = {"posts": posts, "categories": categories, "tag": tag}
     return render(request, "a_posts/home.html", context)
+
 
 @login_required
 def post_create_view(request):
@@ -61,10 +62,10 @@ def post_create_view(request):
 
 
 @login_required
-def post_delete_view(request, id):
+def post_delete_view(request, post_id):
     # Optimize query to prefetch related tags
     post = get_object_or_404(
-        Post.objects.prefetch_related("tags"), id=id, author=request.user
+        Post.objects.prefetch_related("tags"), id=post_id, author=request.user
     )
 
     if request.method == "POST":
@@ -74,11 +75,12 @@ def post_delete_view(request, id):
 
     return render(request, "a_posts/post_delete.html", {"post": post})
 
+
 @login_required
-def post_edit_view(request, id):
+def post_edit_view(request, post_id):
     # Optimize query to prefetch related tags
     post = get_object_or_404(
-        Post.objects.prefetch_related("tags"), id=id, author=request.user
+        Post.objects.prefetch_related("tags"), id=post_id, author=request.user
     )
     form = PostEditFrom(instance=post)
     if request.method == "POST":
@@ -92,11 +94,64 @@ def post_edit_view(request, id):
     return render(request, "a_posts/post_edit.html", context)
 
 
-def post_page_view(request, id):
+def post_page_view(request, post_id):
     # Optimize query to prefetch related tags
-    post = get_object_or_404(Post.objects.prefetch_related("tags"), id=id)
+    post = get_object_or_404(Post.objects.prefetch_related("tags"), id=post_id)
     commentform = CommentCreateForm()
-    context = {"post": post, "commentform": commentform}
-    
+    replyform = RepyCreateForm()
+    context = {"post": post, "commentform": commentform, "replyform": replyform}
+
     return render(request, "a_posts/post_page.html", context)
 
+
+@login_required
+def comment_send(request, comment_id):
+    post = get_object_or_404(Post, id=comment_id)
+
+    if request.method == "POST":
+        form = CommentCreateForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.parent_post = post
+            comment.save()
+
+    return redirect("post", post.id)
+
+
+@login_required
+def comment_delete(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, author=request.user)
+
+    if request.method == "POST":
+        comment.delete()
+        messages.success(request, "Comment deleted")
+        return redirect("post", comment.parent_post.id)
+
+    return render(request, "a_posts/comment_delete.html", {"comment": comment})
+
+
+@login_required
+def reply_send(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    if request.method == "POST":
+        form = RepyCreateForm(request.POST)
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.author = request.user
+            reply.parent_comment = comment
+            reply.save()
+            
+    return redirect("post", comment.parent_post.id)
+
+@login_required
+def reply_delete(request, reply_id):
+    reply = get_object_or_404(Reply, id=reply_id, author=request.user) 
+    
+    if request.method == "POST":
+        reply.delete()
+        messages.success(request, "Reply deleted")
+        return redirect("post", reply.parent_comment.parent_post.id)
+    
+    return render(request, "a_posts/reply_delete.html", {"reply": reply})

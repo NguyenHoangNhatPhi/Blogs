@@ -18,7 +18,7 @@
     <p class="text-xl px-2">
         {{comment.body}}
     </p>
-    <div x-data="{ repliesOpen: true }" class="flex items-center justify-between flex-wrap text-sm px-2">
+    <div x-data="{ repliesOpen: false }" class="flex items-center justify-between flex-wrap text-sm px-2">
         <a @click="repliesOpen = !repliesOpen" class="font-bold hover:underline cursor-pointer">
             <div class="inline-block" x-bind:class="repliesOpen && 'rotate-90 duration-300'">
                 <svg transform ="rotate(90)" width="9" height="9" viewBox="0 0 25 25">
@@ -35,11 +35,7 @@
             {% endif %}
         </a>
         <div class="flex items-center gap-4 [&>a:hover]:underline">
-            <div class="flex items-center gap-1">
-                <img class="w-5 -mt-1" src="https://img.icons8.com/small/24/000000/fire-heart.png">
-                1
-            </div>
-            <a href="">Like</a>
+            {% include 'snippets/likes_comment.html' %}
             {% if user.is_authenticated and comment.author == user%}
                 <a href="{% url 'comment-delete' comment.id%}">Delete</a>
             {% endif %}
@@ -51,7 +47,6 @@
             {% endfor%}
 
             <form method="POST" action="{% url 'reply-send' comment.id %}" class="replyform flex justify-between" autocomplete="off">
-                <!-- <input type="text" name="reply" placeholder="Add reply ..." maxlength="150"> -->
                 {% csrf_token %}
                 <div class="w-full">
                     {{replyform}}

@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Post, Tag, Comment, Reply
 from .forms import PostCreateForm, PostEditFrom, CommentCreateForm, RepyCreateForm
-
+from .utils import like_toggle
 
 def home_view(request, slug=None):
     # Optimize query to prefetch related tags to avoid N+1 queries
@@ -157,14 +157,12 @@ def reply_delete(request, reply_id):
     
     return render(request, "a_posts/reply_delete.html", {"reply": reply})
 
-def like_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    user_exist = post.likes.filter(username=request.user.username).exists()
-    
-    if post.author != request.user:
-        if user_exist:
-            post.likes.remove(request.user)
-        else:
-            post.likes.add(request.user)
-        
+@login_required
+@like_toggle(Post)
+def like_post(request, post):
     return render(request, 'snippets/likes.html', {'post': post})
+
+@login_required
+@like_toggle(Comment)
+def like_comment(request, comment):
+    return render(request, 'snippets/likes_comment.html', {'comment': comment})

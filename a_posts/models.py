@@ -2,7 +2,6 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import User
 
-
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=500)
@@ -61,6 +60,7 @@ class Comment(models.Model):
         primary_key=True,
         editable=False,
     )
+    likes = models.ManyToManyField(User, related_name="likedcomments", through="LikedComment")
 
     def __str__(self):
         try:
@@ -70,6 +70,15 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ["-created"]
+        
+
+class LikedComment(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} liked comment {self.comment.body[:30]}"
 
 
 class Reply(models.Model):

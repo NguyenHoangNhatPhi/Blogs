@@ -166,3 +166,8 @@ def like_post(request, post):
 @like_toggle(Comment)
 def like_comment(request, comment):
     return render(request, 'snippets/likes_comment.html', {'comment': comment})
+
+@login_required
+@like_toggle(Reply)
+def like_reply(request, reply):
+    return render(request, 'snippets/likes_reply.html', {"reply": reply})

@@ -11,6 +11,7 @@ from .views import (
     reply_delete,
     like_post,
     like_comment,
+    like_reply,
 )
 
 urlpatterns = [
@@ -20,11 +21,12 @@ urlpatterns = [
     path("post/delete/<uuid:post_id>/", post_delete_view, name="post-delete"),
     path("post/edit/<uuid:post_id>/", post_edit_view, name="post-edit"),
     path("post/<uuid:post_id>/", post_page_view, name="post"),
-    path("post/<uuid:id>/like/", like_post, name="like-post"),
+    path("post/like/<uuid:id>/", like_post, name="like-post"),
     path("commentsent/<uuid:comment_id>/", comment_send, name="comment-send"),
     path("comment/delete/<uuid:comment_id>/", comment_delete, name="comment-delete"),
-    path("comment/<uuid:id>/like", like_comment, name="like-comment"),
+    path("comment/like/<uuid:id>/", like_comment, name="like-comment"),
     path("reply-send/<uuid:comment_id>/", reply_send, name="reply-send"),
     path("reply-delete/<uuid:reply_id>/", reply_delete, name="reply-delete"),
+    path("reply/like/<uuid:id>/", like_reply, name="like-reply"),
     
 ]

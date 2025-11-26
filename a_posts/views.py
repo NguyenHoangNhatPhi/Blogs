@@ -117,7 +117,7 @@ def comment_send(request, comment_id):
             comment.parent_post = post
             comment.save()
 
-    return redirect("post", post.id)
+    return render(request, "snippets/add_comment.html",{"post": post, "comment": comment} )
 
 
 @login_required

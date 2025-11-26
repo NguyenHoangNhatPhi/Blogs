@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Ví dụ Hyperscript Cơ bản</title>
+    <script src="https://unpkg.com/hyperscript.org"></script>
+    <style>
+        .container {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            border: 1px solid #e0f7fa;
+            border-radius: 5px;
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #0056b3;
+            background-color: #e0f7fa;
+            color: #0056b3;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        body{
+            background-color: #000
+        }
+        .text-white{
+            color: #fff;
+        }
+        .highlight { background-color: yellow; border: 2px solid red; }
+    </style>
+    <script>
+        function log_message(message){
+            console.log(message);
+            alert(message);
+        }
+    </script>
+
+</head>
+<body>
+
+
+
+    <div class="container">
+        
+       <div class="box" _="on click 
+                        add .highlight to me 
+                        wait 1 second
+                        remove .highlight from me
+                        ">
+        <div>
+    </div>
+
+</body>
+</html>

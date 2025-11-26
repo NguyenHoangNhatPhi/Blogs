@@ -25,14 +25,16 @@
                     <path d="M24 22h-24l12-20z"/>
                 </svg>
             </div>
-            {% if comment.replies.count %}
-                Replies
-                <span class="font-light text-gray-500 ml-1">{{comment.replies.count}}</span>
-            {% else %}
-                {% if user.is_authenticated %}
-                    Add a reply
+            <span id="replies-count-{{comment.id}}">
+                {% if comment.replies.count %}
+                    Replies
+                    <span  class="font-light text-gray-500 ml-1">{{comment.replies.count}}</span>
+                {% else %}
+                    {% if user.is_authenticated %}
+                        Add a reply
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+            </span>
         </a>
         <div class="flex items-center gap-4 [&>a:hover]:underline">
             {% include 'snippets/likes_comment.html' %}
@@ -46,7 +48,12 @@
                 {% include 'a_posts/reply.html' %}
             {% endfor%}
 
-            <form method="POST" action="{% url 'reply-send' comment.id %}" class="replyform flex justify-between" autocomplete="off">
+            <form class="replyform flex justify-between" 
+            autocomplete="off"
+            hx-post="{% url 'reply-send' comment.id %}"
+            hx-target="this"
+            hx-swap="outerHTML"
+            >
                 {% csrf_token %}
                 <div class="w-full">
                     {{replyform}}

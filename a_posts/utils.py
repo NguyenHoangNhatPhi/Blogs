@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Prefetch, Count
 
 def like_toggle(model):
     def inner_func(func):
@@ -11,6 +12,15 @@ def like_toggle(model):
                     model_instance.likes.remove(request.user)
                 else:
                     model_instance.likes.add(request.user)
+            
+            # Reload the object with optimizations for template rendering
+            model_instance = (
+                model.objects
+                .select_related("author", "author__profile")
+                .prefetch_related(Prefetch("likes", to_attr="likes_list"))
+                .annotate(likes_count=Count("likes", distinct=True))
+                .get(id=model_instance.id)
+            )
             
             return func(request, model_instance)
         return wrapper

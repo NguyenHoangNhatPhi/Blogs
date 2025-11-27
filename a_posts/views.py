@@ -4,19 +4,34 @@ from bs4 import BeautifulSoup
 import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch, Count
 
 from .models import Post, Tag, Comment, Reply
 from .forms import PostCreateForm, PostEditFrom, CommentCreateForm, RepyCreateForm
 from .utils import like_toggle
 
 def home_view(request, slug=None):
-    # Optimize query to prefetch related tags to avoid N+1 queries
+    # Optimize query with select_related, prefetch_related, and annotations
     tag = None
+    
+    # Build optimized queryset
+    posts = (
+        Post.objects
+        .select_related("author", "author__profile")  # ForeignKey optimization
+        .prefetch_related("tags")  # ManyToMany optimization
+        .prefetch_related(
+            Prefetch("likes", to_attr="likes_list")  # Prefetch all likes
+        )
+        .annotate(
+            comments_count=Count("comments", distinct=True),  # Avoid count() queries
+            likes_count=Count("likes", distinct=True)
+        )
+    ).order_by("-created")
+    
     if slug:
-        posts = Post.objects.prefetch_related("tags").filter(tags__slug=slug)
+        posts = posts.filter(tags__slug=slug)
         tag = get_object_or_404(Tag, slug=slug)
-    else:
-        posts = Post.objects.prefetch_related("tags").all()
+    
     categories = Tag.objects.all()
     context = {"posts": posts, "categories": categories, "tag": tag}
     return render(request, "a_posts/home.html", context)
@@ -64,9 +79,19 @@ def post_create_view(request):
 
 @login_required
 def post_delete_view(request, post_id):
-    # Optimize query to prefetch related tags
+    # Optimize query to prefetch related data - delete template includes post.html
     post = get_object_or_404(
-        Post.objects.prefetch_related("tags"), id=post_id, author=request.user
+        Post.objects
+        .select_related("author", "author__profile")
+        .prefetch_related(
+            "tags",
+            Prefetch("likes", to_attr="likes_list")
+        )
+        .annotate(
+            comments_count=Count("comments", distinct=True),
+            likes_count=Count("likes", distinct=True)
+        ),
+        id=post_id, author=request.user
     )
 
     if request.method == "POST":
@@ -81,7 +106,10 @@ def post_delete_view(request, post_id):
 def post_edit_view(request, post_id):
     # Optimize query to prefetch related tags
     post = get_object_or_404(
-        Post.objects.prefetch_related("tags"), id=post_id, author=request.user
+        Post.objects
+        .select_related("author", "author__profile")
+        .prefetch_related("tags"),
+        id=post_id, author=request.user
     )
     form = PostEditFrom(instance=post)
     if request.method == "POST":
@@ -96,8 +124,54 @@ def post_edit_view(request, post_id):
 
 
 def post_page_view(request, post_id):
-    # Optimize query to prefetch related tags
-    post = get_object_or_404(Post.objects.prefetch_related("tags"), id=post_id)
+    # Optimize with deeply nested prefetch to avoid N+1 queries
+    
+    # Optimize replies: author, profile, and likes
+    replies_prefetch = Prefetch(
+        "replies",
+        queryset=(
+            Reply.objects
+            .select_related("author", "author__profile")
+            .prefetch_related(Prefetch("likes", to_attr="likes_list"))
+            .annotate(likes_count=Count("likes", distinct=True))
+            .order_by("-created")
+        )
+    )
+    
+    # Optimize comments: author, profile, likes, and nested replies
+    comments_prefetch = Prefetch(
+        "comments",
+        queryset=(
+            Comment.objects
+            .select_related("author", "author__profile")
+            .prefetch_related(
+                Prefetch("likes", to_attr="likes_list"),
+                replies_prefetch
+            )
+            .annotate(
+                likes_count=Count("likes", distinct=True),
+                replies_count=Count("replies", distinct=True)
+            )
+            .order_by("-created")
+        )
+    )
+    
+    # Build the main post query with all optimizations
+    post = get_object_or_404(
+        Post.objects
+        .select_related("author", "author__profile")
+        .prefetch_related(
+            "tags",
+            Prefetch("likes", to_attr="likes_list"),
+            comments_prefetch
+        )
+        .annotate(
+            comments_count=Count("comments", distinct=True),
+            likes_count=Count("likes", distinct=True)
+        ),
+        id=post_id
+    )
+    
     commentform = CommentCreateForm()
     replyform = RepyCreateForm()
     context = {"post": post, "commentform": commentform, "replyform": replyform}
@@ -118,6 +192,25 @@ def comment_send(request, comment_id):
             comment.parent_post = post
             comment.save()
             
+            # Reload comment with optimizations for template rendering
+            comment = (
+                Comment.objects
+                .select_related("author", "author__profile")
+                .prefetch_related(Prefetch("likes", to_attr="likes_list"))
+                .annotate(
+                    likes_count=Count("likes", distinct=True),
+                    replies_count=Count("replies", distinct=True)
+                )
+                .get(id=comment.id)
+            )
+            
+            # Reload post with updated comment count
+            post = (
+                Post.objects
+                .annotate(comments_count=Count("comments", distinct=True))
+                .get(id=post.id)
+            )
+            
     context = {"post": post, "comment": comment, "replyform": replyform}
 
     return render(request, "snippets/add_comment.html",context )
@@ -125,14 +218,25 @@ def comment_send(request, comment_id):
 
 @login_required
 def comment_delete(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id, author=request.user)
+    # Optimize query - delete template includes comment.html which needs annotations
+    comment = get_object_or_404(
+        Comment.objects
+        .select_related("author", "author__profile")
+        .prefetch_related(Prefetch("likes", to_attr="likes_list"))
+        .annotate(
+            likes_count=Count("likes", distinct=True),
+            replies_count=Count("replies", distinct=True)
+        ),
+        id=comment_id, author=request.user
+    )
 
     if request.method == "POST":
         comment.delete()
         messages.success(request, "Comment deleted")
         return redirect("post", comment.parent_post.id)
 
-    return render(request, "a_posts/comment_delete.html", {"comment": comment})
+    replyform = RepyCreateForm()
+    return render(request, "a_posts/comment_delete.html", {"comment": comment, "replyform": replyform})
 
 
 @login_required
@@ -148,13 +252,36 @@ def reply_send(request, comment_id):
             reply.parent_comment = comment
             reply.save()
             
+            # Reload reply with optimizations for template rendering
+            reply = (
+                Reply.objects
+                .select_related("author", "author__profile")
+                .prefetch_related(Prefetch("likes", to_attr="likes_list"))
+                .annotate(likes_count=Count("likes", distinct=True))
+                .get(id=reply.id)
+            )
+            
+            # Reload comment with updated reply count
+            comment = (
+                Comment.objects
+                .annotate(replies_count=Count("replies", distinct=True))
+                .get(id=comment.id)
+            )
+            
     context = {"comment": comment,"reply": reply, "replyform": replyform}
             
     return render(request, "snippets/add_reply.html",context)
 
 @login_required
 def reply_delete(request, reply_id):
-    reply = get_object_or_404(Reply, id=reply_id, author=request.user) 
+    # Optimize query - delete template includes reply.html which needs annotations
+    reply = get_object_or_404(
+        Reply.objects
+        .select_related("author", "author__profile")
+        .prefetch_related(Prefetch("likes", to_attr="likes_list"))
+        .annotate(likes_count=Count("likes", distinct=True)),
+        id=reply_id, author=request.user
+    ) 
     
     if request.method == "POST":
         reply.delete()

@@ -1,8 +1,8 @@
 {% load static %}
 <div class="flex items-center gap-4 [&>a:hover]:underline">
-    {% if reply.likes.count %}
+    {% if reply.likes_count %}
         <div class="flex items-center gap-1">
-            {% if user in reply.likes.all %}
+            {% if user in reply.likes_list %}
                 <img
                 class="w-4 -mt-1"
                 src="{% static 'images/fireheart_red.svg' %}"
@@ -13,7 +13,7 @@
                 src="{% static 'images/fireheart.svg' %}"
             />
             {% endif %}
-                <div>{{reply.likes.count}}</div>
+                <div>{{reply.likes_count}}</div>
         </div>
     {% endif %}
     {% if user.is_authenticated and user != reply.author %}
@@ -23,7 +23,7 @@
         hx-target="closest div"
         hx-swap="outerHTML"
         >
-          {% if user in reply.likes.all %}
+          {% if user in reply.likes_list %}
             Liked
           {% else %}
             Like

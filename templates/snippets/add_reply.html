@@ -22,9 +22,9 @@ hx-swap="outerHTML"
 </form>
 
 <span hx-swap-oob="true" id="replies-count-{{comment.id}}" hx-swap-oob="outerHTML">
-    {% if comment.replies.count %}
+    {% if comment.replies_count %}
         Replies
-        <span  class="font-light text-gray-500 ml-1">{{comment.replies.count}}</span>
+        <span  class="font-light text-gray-500 ml-1">{{comment.replies_count}}</span>
     {% else %}
         {% if user.is_authenticated %}
             Add a reply

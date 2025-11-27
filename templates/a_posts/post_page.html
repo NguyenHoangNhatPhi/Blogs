@@ -4,6 +4,7 @@
 
 {% include 'a_posts/post.html'  %}
 
+{% if user.is_authenticated %}
 <div class="card !pb-0 -mt-3">
     <form class="flex items-center p-4" autocomplete="off"
         hx-post="{% url 'comment-send' post.id %}" 
@@ -16,6 +17,7 @@
         <button @click="open = false" class="block ml-2" type="submit">Submit</button>
     </form>
 </div>
+{% endif %}
 
 {% if post.comments.count %}
 <div class="mb-20">

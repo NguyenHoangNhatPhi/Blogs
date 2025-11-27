@@ -20,11 +20,13 @@
     </p>
     <div x-data="{ repliesOpen: false }" class="flex items-center justify-between flex-wrap text-sm px-2">
         <a @click="repliesOpen = !repliesOpen" class="font-bold hover:underline cursor-pointer">
-            <div class="inline-block" x-bind:class="repliesOpen && 'rotate-90 duration-300'">
-                <svg transform ="rotate(90)" width="9" height="9" viewBox="0 0 25 25">
-                    <path d="M24 22h-24l12-20z"/>
-                </svg>
-            </div>
+            {% if comment.replies.count or user.is_authenticated %}
+                <div class="inline-block" x-bind:class="repliesOpen && 'rotate-90 duration-300'">
+                    <svg transform ="rotate(90)" width="9" height="9" viewBox="0 0 25 25">
+                        <path d="M24 22h-24l12-20z"/>
+                    </svg>
+                </div>
+            {% endif%}
             <span id="replies-count-{{comment.id}}">
                 {% if comment.replies.count %}
                     Replies
@@ -47,19 +49,20 @@
             {% for reply in comment.replies.all %}
                 {% include 'a_posts/reply.html' %}
             {% endfor%}
-
-            <form class="replyform flex justify-between" 
-            autocomplete="off"
-            hx-post="{% url 'reply-send' comment.id %}"
-            hx-target="this"
-            hx-swap="outerHTML"
-            >
-                {% csrf_token %}
-                <div class="w-full">
-                    {{replyform}}
-                </div>
-                <button class="block ml-2" type="submit">Submit</button>
-            </form>
+            {% if user.is_authenticated %}
+                <form class="replyform flex justify-between" 
+                autocomplete="off"
+                hx-post="{% url 'reply-send' comment.id %}"
+                hx-target="this"
+                hx-swap="outerHTML"
+                >
+                    {% csrf_token %}
+                    <div class="w-full">
+                        {{replyform}}
+                    </div>
+                    <button class="block ml-2" type="submit">Submit</button>
+                </form>
+            {% endif %}
         </div>
     </div> 
 </comment>
